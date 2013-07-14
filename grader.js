@@ -39,7 +39,9 @@ var assertFileExists = function(infile) {
 };
 
 var cheerioHtmlFile = function(htmlfile) {
-    return cheerio.load(fs.readFileSync(htmlfile));
+    var test = cheerio.load(fs.readFileSync(htmlfile));
+    console.log(test);
+    return test;
 };
 
 var loadChecks = function(checksfile) {
@@ -58,7 +60,9 @@ var checkHtmlFile = function(htmlfile, checksfile) {
 };
 
 var checkHtmlURL = function(htmlfile, checksfile) {
-    $ = cheerio.load(htmlfile);
+    $ = cheerio.load(fs.readFileSync(htmlfile));
+    //$ = cheerio.load(htmlfile);
+    console.log($);
     var checks = loadChecks(checksfile).sort();
     var out = {};
     for(var ii in checks) {
@@ -80,6 +84,7 @@ var getResult=function(data) {
 };
 
 if(require.main == module) {
+    var html ="text.html";
     program
         .option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
         .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
@@ -89,9 +94,9 @@ if(require.main == module) {
 	rest.get(program.url).on('complete',function(result) {
 	    if (result instanceof Error) {
 		sys.puts('Error: ' + result.message);
-		this.retry(5000); // try again after 5 sec
 	    } else {
-		var checkJson1 = checkHtmlURL(result, program.checks);
+                fs.writeFileSync("text.html",result.toString()+"/n");
+		var checkJson1 = checkHtmlURL("text.html", program.checks);
 		getResult(checkJson1);}
         });
     } else {
